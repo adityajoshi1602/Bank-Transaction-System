@@ -12,11 +12,11 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-transporter.verify((error, success) => {
+transporter.verify((error) => {
     if (error) {
-        console.error('Error connecting to email server:', error);
+        console.error('Email server error:', error);
     } else {
-        console.log('Email server is ready to send messages');
+        console.log('Email server ready');
     }
 });
 
@@ -29,50 +29,75 @@ const sendEmail = async (to, subject, text, html) => {
             text,
             html,
         });
-
         console.log('Message sent:', info.messageId);
     } catch (error) {
-        console.error('Error sending email:', error);
+        console.error('Email error:', error);
     }
 };
+
 
 async function sendRegistrationEmail(name, useremail) {
     const subject = 'Welcome to Bank System';
 
     const text = `Hello ${name},
-
-Thank you for registering with Bank System.
-
-Your account has been successfully created. You can now securely log in and start using our services, including managing your account, tracking transactions, and accessing financial tools.
-
-If you did not create this account, please contact our support team immediately.
-
-Best regards,
-Bank System Team`;
+Your account has been created successfully. You can now log in and start using our services.`;
 
     const html = `
-    <div style="font-family: Arial, sans-serif; line-height: 1.6;">
-      <h2>Welcome to Bank System, ${name} 👋</h2>
-      <p>We’re glad to have you onboard.</p>
-      <p>Your account has been <strong>successfully created</strong>. You can now:</p>
-      <ul>
-        <li>Access your dashboard</li>
-        <li>Manage your account securely</li>
-        <li>Track transactions</li>
-        <li>Use banking features</li>
-      </ul>
-      <p>If you did not register for this account, please contact our support team immediately.</p>
-      <hr />
-      <p style="font-size: 14px; color: gray;">
-        This is an automated message. Please do not reply directly to this email.
-      </p>
-      <p>— Bank System Team</p>
+    <div style="font-family: Arial;">
+        <h3>Welcome, ${name} 👋</h3>
+        <p>Your account is ready.</p>
+        <p>You can now log in and start using Bank System.</p>
     </div>
-  `;
+    `;
 
     await sendEmail(useremail, subject, text, html);
 }
 
+
+async function sendTransactionEmail(email, name, amount, toAccount) {
+    const subject = 'Transaction Successful';
+
+    const text = `Hello ${name},
+Your transaction of ₹${amount} was successful.
+Recipient: ${toAccount}`;
+
+    const html = `
+    <div style="font-family: Arial;">
+        <h3>Transaction Successful ✅</h3>
+        <p>Hi ${name},</p>
+        <p>Your transfer of <strong>₹${amount}</strong> was completed successfully.</p>
+        <p><strong>Recipient:</strong> ${toAccount}</p>
+        <p>If this wasn’t you, contact support immediately.</p>
+    </div>
+    `;
+
+    await sendEmail(email, subject, text, html);
+}
+
+
+async function sendTransactionFailureEmail(name, email, amount, reason) {
+    const subject = 'Transaction Failed';
+
+    const text = `Hello ${name},
+Your transaction of ₹${amount} failed.
+Reason: ${reason}`;
+
+    const html = `
+    <div style="font-family: Arial;">
+        <h3>Transaction Failed ❌</h3>
+        <p>Hi ${name},</p>
+        <p>Your transaction of <strong>₹${amount}</strong> could not be completed.</p>
+        <p><strong>Reason:</strong> ${reason}</p>
+        <p>Please try again or contact support.</p>
+    </div>
+    `;
+
+    await sendEmail(email, subject, text, html);
+}
+
+
 module.exports = {
     sendRegistrationEmail,
+    sendTransactionEmail,
+    sendTransactionFailureEmail,
 };
