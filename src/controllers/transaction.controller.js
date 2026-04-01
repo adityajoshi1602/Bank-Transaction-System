@@ -53,4 +53,12 @@ async function createtransaction(req, res) {
             message: 'Both accounts must be active'
         })
     }
+
+    const balance = await fromAccount.getbalance();
+
+    if (balance < amount) {
+        throw new Error('Insufficient balance');
+    }
+
+    
 }
